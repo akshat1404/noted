@@ -28,6 +28,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             userId INTEGER,
             domain TEXT,
+            url TEXT,
             content TEXT,
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (userId) REFERENCES users(id)
@@ -64,14 +65,14 @@ app.post('/auth', (req, res) => {
 
 // Save Note
 app.post('/notes', (req, res) => {
-    const { token, domain, content } = req.body;
-    if (!token || !domain || !content) return res.status(400).json({ error: 'Missing fields' });
+    const { token, domain, url, content } = req.body;
+    if (!token || !domain || !url || !content) return res.status(400).json({ error: 'Missing fields' });
 
     db.get('SELECT id FROM users WHERE token = ?', [token], (err, user) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!user) return res.status(401).json({ error: 'Invalid token' });
 
-        db.run('INSERT INTO notes (userId, domain, content) VALUES (?, ?, ?)', [user.id, domain, content], function(err) {
+        db.run('INSERT INTO notes (userId, domain, url, content) VALUES (?, ?, ?, ?)', [user.id, domain, url, content], function(err) {
             if (err) return res.status(500).json({ error: err.message });
             res.json({ success: true, noteId: this.lastID });
         });

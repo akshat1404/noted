@@ -106,8 +106,10 @@ function App() {
             notes.map((note) => (
               <div key={note.id} className="note-card">
                 <div className="domain">
-                  <ExternalLink size={12} style={{ marginRight: '4px' }} />
-                  {note.domain}
+                  <a href={note.url} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none', color: 'inherit', display: 'flex', alignItems: 'center' }}>
+                    <ExternalLink size={12} style={{ marginRight: '4px' }} />
+                    {note.domain}
+                  </a>
                 </div>
                 <div className="content" dangerouslySetInnerHTML={{ __html: note.content }} />
                 <div className="time">

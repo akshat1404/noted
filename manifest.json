@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Noted",
   "version": "6.1",
-  "description": "Yellow notes with ultra-fast clean AI summarization via Groq (Text Only)",
+  "description": "Get your shit together with Noted",
   "permissions": [
     "storage",
     "activeTab",

@@ -10,6 +10,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       body: JSON.stringify({
         token: request.token,
         domain: request.domain,
+        url: request.url,
         content: request.content
       })
     })

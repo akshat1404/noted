@@ -3,8 +3,16 @@
 (function() {
     'use strict';
 
+    const DASHBOARD_URL = "https://noted-peach.vercel.app/";
+    
+    // Ignore dashboard site
+    if (window.location.href.startsWith(DASHBOARD_URL)) {
+        return;
+    }
+
     const siteKey = "note_" + window.location.hostname;
     const domain = window.location.hostname;
+    const url = window.location.href;
 
     // Helper functions
     const getValue = (key, defaultValue) => {
@@ -19,15 +27,30 @@
         chrome.storage.local.set({ [key]: value });
     };
 
+    // 1. TRIGGER ICON (Small button bottom right)
+    const trigger = document.createElement('div');
+    trigger.innerText = "N";
+    trigger.style = `
+        position: fixed; bottom: 20px; right: 20px; z-index: 2147483647;
+        background: #facc15; border: 2px solid #854d0e; border-radius: 50%;
+        width: 40px; height: 40px; display: flex; align-items: center; justify-content: center;
+        color: #854d0e; font-weight: bold; cursor: pointer; font-family: sans-serif;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15); font-size: 20px;
+    `;
+
     // 2. MAIN WIDGET
     const widget = document.createElement('div');
     widget.style = `
-        position: fixed; bottom: 20px; right: 20px; z-index: 2147483647;
+        position: fixed; bottom: 70px; right: 20px; z-index: 2147483647;
         background: #feff9c; border: 1px solid #e6e600; border-radius: 4px;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: flex; flex-direction: column;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.15); display: none; flex-direction: column;
         min-width: 250px; min-height: 150px; width: 300px; height: 260px;
         overflow: visible; resize: both; font-family: 'Segoe UI', Tahoma, sans-serif;
     `;
+
+    trigger.onclick = () => {
+        widget.style.display = widget.style.display === 'none' ? 'flex' : 'none';
+    };
 
     // 3. TOOLBAR
     const toolbar = document.createElement('div');
@@ -44,7 +67,7 @@
     const closeBtn = document.createElement('button');
     closeBtn.innerText = 'CLOSE';
     closeBtn.style = "margin-left: auto; cursor: pointer; border: none; background: transparent; font-size: 10px; color: #666; font-weight: bold; letter-spacing: 0.5px;";
-    closeBtn.onclick = () => widget.remove();
+    closeBtn.onclick = () => widget.style.display = 'none';
 
     toolbar.append(createStyleBtn('B', 'bold'), createStyleBtn('I', 'italic'), closeBtn);
 
@@ -82,10 +105,12 @@
             type: "SAVE_NOTE",
             token: token,
             domain: domain,
+            url: url,
             content: editor.innerHTML
         }, (response) => {
             if (response && response.success) {
                 saveBtn.innerText = "SAVED!";
+                alert(`Note saved successfully! You can view it on your dashboard: ${DASHBOARD_URL}`);
                 setTimeout(() => {
                     saveBtn.innerText = originalText;
                     saveBtn.disabled = false;
@@ -115,6 +140,7 @@
         menu.appendChild(item);
     };
 
+    addAction("Open Dashboard", () => window.open(DASHBOARD_URL, '_blank'));
     addAction("Copy Text", () => {
         navigator.clipboard.writeText(editor.innerText);
         const original = menuBtn.innerText;
@@ -132,6 +158,7 @@
 
     footer.append(saveBtn, menuBtn, menu);
     widget.append(toolbar, editor, footer);
+    document.body.appendChild(trigger);
     document.body.appendChild(widget);
 
 })();
