@@ -1,13 +1,12 @@
-// Content script adapted from userscript
+// Content script for Noted Extension
 
 (function() {
     'use strict';
 
-    // 1. CONFIGURATION
-    const API_KEY = "INSERT_YOUR_GROQ_API_KEY_HERE";
     const siteKey = "note_" + window.location.hostname;
+    const domain = window.location.hostname;
 
-    // Helper functions to replace GM_*
+    // Helper functions
     const getValue = (key, defaultValue) => {
         return new Promise((resolve) => {
             chrome.storage.local.get([key], (result) => {
@@ -30,7 +29,7 @@
         overflow: visible; resize: both; font-family: 'Segoe UI', Tahoma, sans-serif;
     `;
 
-    // 3. TOOLBAR (Formatting & Close)
+    // 3. TOOLBAR
     const toolbar = document.createElement('div');
     toolbar.style = `background: rgba(0,0,0,0.05); padding: 5px; display: flex; gap: 8px; border-bottom: 1px solid rgba(0,0,0,0.1); align-items: center;`;
 
@@ -54,62 +53,48 @@
     editor.contentEditable = true;
     editor.style = `flex: 1; padding: 12px; overflow-y: auto; outline: none; background: transparent; color: #333; line-height: 1.5; font-size: 14px;`;
     
-    // Initialize editor content asynchronously
     getValue(siteKey, "Write a note...").then(content => {
         editor.innerHTML = content;
     });
 
     editor.addEventListener('input', () => setValue(siteKey, editor.innerHTML));
 
-    // 5. FOOTER (AI Button & Menu)
+    // 5. FOOTER
     const footer = document.createElement('div');
     footer.style = `padding: 8px; display: flex; justify-content: space-between; align-items: center; position: relative; border-top: 1px solid rgba(0,0,0,0.03);`;
 
-    const aiBtn = document.createElement('button');
-    aiBtn.innerText = "Let AI write the note";
-    aiBtn.style = "background: #000; color: #fff; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 11px; font-weight: bold; text-transform: uppercase;";
+    const saveBtn = document.createElement('button');
+    saveBtn.innerText = "SAVE TO DASHBOARD";
+    saveBtn.style = "background: #000; color: #fff; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; font-size: 11px; font-weight: bold; text-transform: uppercase;";
 
-    aiBtn.onclick = () => {
-        const originalText = aiBtn.innerText;
-        aiBtn.innerText = "READING...";
-        aiBtn.disabled = true;
+    saveBtn.onclick = async () => {
+        const token = (await getValue('noted_token', '')).trim();
+        if (!token) {
+            alert("Please set your User Token in the extension settings (click extension icon).");
+            return;
+        }
 
-        const pageText = document.body.innerText.substring(0, 7000);
+        const originalText = saveBtn.innerText;
+        saveBtn.innerText = "SAVING...";
+        saveBtn.disabled = true;
 
         chrome.runtime.sendMessage({
-            type: "GROQ_API",
-            url: "https://api.groq.com/openai/v1/chat/completions",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${API_KEY}`
-            },
-            body: JSON.stringify({
-                model: "llama-3.3-70b-versatile",
-                messages: [
-                    {
-                        role: "system",
-                        content: "Summarize this website in 3 bullet points. Provide ONLY the bullet points. No intro, no headers, no concluding text."
-                    },
-                    { role: "user", content: pageText }
-                ],
-                temperature: 0.3
-            })
+            type: "SAVE_NOTE",
+            token: token,
+            domain: domain,
+            content: editor.innerHTML
         }, (response) => {
             if (response && response.success) {
-                try {
-                    const data = response.data;
-                    if (data.choices && data.choices[0]) {
-                        const summary = data.choices[0].message.content.trim().replace(/\n/g, '<br>');
-                        if (editor.innerText === "Write a note...") editor.innerHTML = "";
-                        editor.innerHTML += `<br>${summary}`;
-                        setValue(siteKey, editor.innerHTML);
-                    }
-                } catch (e) { console.error("AI Error", e); }
+                saveBtn.innerText = "SAVED!";
+                setTimeout(() => {
+                    saveBtn.innerText = originalText;
+                    saveBtn.disabled = false;
+                }, 2000);
             } else {
-                console.error("API Call failed", response ? response.error : "Unknown error");
+                alert("Failed to save: " + (response ? response.error : "Unknown error"));
+                saveBtn.innerText = originalText;
+                saveBtn.disabled = false;
             }
-            aiBtn.innerText = originalText;
-            aiBtn.disabled = false;
         });
     };
 
@@ -130,19 +115,11 @@
         menu.appendChild(item);
     };
 
-    addAction("Post to X", () => window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(editor.innerText)}`, '_blank'));
     addAction("Copy Text", () => {
         navigator.clipboard.writeText(editor.innerText);
         const original = menuBtn.innerText;
         menuBtn.innerText = "COPIED";
         setTimeout(() => menuBtn.innerText = original, 1000);
-    });
-    addAction("Download TXT", () => {
-        const blob = new Blob([editor.innerText], {type: "text/plain"});
-        const a = document.createElement('a');
-        a.href = URL.createObjectURL(blob);
-        a.download = `note-${window.location.hostname}.txt`;
-        a.click();
     });
     addAction("Clear Note", () => { if(confirm("Clear this note?")) { editor.innerHTML = ""; setValue(siteKey, ""); } });
 
@@ -153,7 +130,7 @@
 
     document.addEventListener('click', () => menu.style.display = 'none');
 
-    footer.append(aiBtn, menuBtn, menu);
+    footer.append(saveBtn, menuBtn, menu);
     widget.append(toolbar, editor, footer);
     document.body.appendChild(widget);
 

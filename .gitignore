@@ -1,0 +1,9 @@
+node_modules/
+.env
+*.db
+*.log
+dist/
+.DS_Store
+dashboard/node_modules/
+server/node_modules/
+server/noted.db
