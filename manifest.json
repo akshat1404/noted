@@ -9,7 +9,7 @@
     "scripting"
   ],
   "host_permissions": [
-    "http://localhost:3001/*"
+    "https://noted-backend-6wc6.onrender.com/*"
   ],
   "action": {
     "default_popup": "popup.html"

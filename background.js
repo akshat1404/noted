@@ -2,7 +2,7 @@
 
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === "SAVE_NOTE") {
-    fetch("http://localhost:3001/api/notes", {
+    fetch("https://noted-backend-6wc6.onrender.com/api/notes", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
