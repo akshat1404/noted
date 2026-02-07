@@ -1,15 +1,11 @@
-document.getElementById('save').onclick = () => {
-    const token = document.getElementById('token').value;
-    chrome.storage.local.set({ noted_token: token }, () => {
-        const status = document.getElementById('status');
-        status.style.display = 'block';
-        setTimeout(() => window.close(), 1500);
-    });
-};
-
-// Load existing token
+// Popup logic - simple status check
 chrome.storage.local.get(['noted_token'], (result) => {
+    const msg = document.getElementById('sync-msg');
     if (result.noted_token) {
-        document.getElementById('token').value = result.noted_token;
+        msg.innerText = "✨ Auto-Sync Connected";
+        msg.style.color = "#059669";
+    } else {
+        msg.innerText = "❌ Not Connected";
+        msg.style.color = "#ef4444";
     }
 });

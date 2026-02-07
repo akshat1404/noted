@@ -5,11 +5,26 @@
 
     const DASHBOARD_URL = "https://noted-peach.vercel.app/";
     
-    // Ignore dashboard site
+    // --- DASHBOARD SYNC LOGIC ---
     if (window.location.href.startsWith(DASHBOARD_URL)) {
+        // Listen for the custom event from the React app
+        window.addEventListener('NOTED_AUTH_SYNC', (e) => {
+            if (e.detail && e.detail.token) {
+                chrome.storage.local.set({ noted_token: e.detail.token }, () => {
+                    console.log("Noted: Token synchronized automatically.");
+                });
+            }
+        });
+
+        // Also check localStorage on load just in case
+        const existingToken = localStorage.getItem('noted_token');
+        if (existingToken) {
+            chrome.storage.local.set({ noted_token: existingToken });
+        }
         return;
     }
 
+    // --- REGULAR SITE LOGIC ---
     const siteKey = "note_" + window.location.hostname;
     const domain = window.location.hostname;
     const url = window.location.href;
@@ -93,7 +108,8 @@
     saveBtn.onclick = async () => {
         const token = (await getValue('noted_token', '')).trim();
         if (!token) {
-            alert("Please set your User Token in the extension settings (click extension icon).");
+            alert("No dashboard link found! Please visit and sign in to noted-peach.vercel.app first.");
+            window.open(DASHBOARD_URL, '_blank');
             return;
         }
 
@@ -110,7 +126,7 @@
         }, (response) => {
             if (response && response.success) {
                 saveBtn.innerText = "SAVED!";
-                alert(`Note saved successfully! You can view it on your dashboard: ${DASHBOARD_URL}`);
+                alert(`Note saved successfully! View it on your dashboard: ${DASHBOARD_URL}`);
                 setTimeout(() => {
                     saveBtn.innerText = originalText;
                     saveBtn.disabled = false;

@@ -1,21 +1,48 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-  <title>Noted Settings</title>
+  <title>Noted Status</title>
   <style>
-    body { width: 300px; padding: 15px; font-family: sans-serif; }
-    h2 { margin-top: 0; font-size: 1.2rem; }
-    input { width: 100%; padding: 8px; margin: 10px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-    button { width: 100%; padding: 10px; background: #000; color: #fff; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
-    .status { margin-top: 10px; font-size: 0.8rem; color: green; display: none; }
+    body {
+      width: 250px;
+      padding: 15px;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    .status-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      background: #facc15;
+      color: #854d0e;
+      text-decoration: none;
+      border-radius: 4px;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+
+    .sync-status {
+      color: #059669;
+      font-weight: bold;
+      font-size: 0.9rem;
+    }
   </style>
 </head>
+
 <body>
-  <h2>Noted Settings</h2>
-  <label>User Token:</label>
-  <input type="password" id="token" placeholder="Paste token from dashboard">
-  <button id="save">Save Token</button>
-  <div id="status" class="status">Token saved successfully!</div>
+  <div class="status-icon">📝</div>
+  <h3>Noted is Active</h3>
+  <div id="sync-msg" class="sync-status">✨ Auto-Sync Enabled</div>
+  <p style="font-size: 0.8rem; color: #666;">Your notes are automatically saved to your dashboard.</p>
+  <a href="https://noted-peach.vercel.app/" target="_blank" class="btn">Open Dashboard</a>
   <script src="popup.js"></script>
 </body>
+
 </html>

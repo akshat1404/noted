@@ -9,11 +9,11 @@ function App() {
   const [token, setToken] = useState(localStorage.getItem('noted_token') || '');
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [copied, setCopied] = useState(false);
-
   useEffect(() => {
     if (token) {
       fetchNotes();
+      // Sync with extension if already logged in
+      window.dispatchEvent(new CustomEvent('NOTED_AUTH_SYNC', { detail: { token } }));
     }
   }, [token]);
 
@@ -39,6 +39,8 @@ function App() {
       setToken(res.data.token);
       localStorage.setItem('noted_token', res.data.token);
       localStorage.setItem('noted_user', user);
+      // Notify extension
+      window.dispatchEvent(new CustomEvent('NOTED_AUTH_SYNC', { detail: { token: res.data.token } }));
     } catch (err) {
       alert('Login failed');
     }
@@ -65,12 +67,15 @@ function App() {
           <form onSubmit={handleLogin}>
             <input 
               type="text" 
-              placeholder="Enter your username" 
+              placeholder="Enter your name" 
               value={user} 
               onChange={(e) => setUser(e.target.value)}
               required
             />
-            <button type="submit">Connect & Enter</button>
+            <button type="submit" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+              <img src="https://www.gstatic.com/images/branding/product/1x/gsa_512dp.png" width="20" alt="G" />
+              Sign in with Google
+            </button>
           </form>
           <p style={{ marginTop: '1rem', fontSize: '0.9rem', color: '#666' }}>
             Enter any username to create your unique dashboard.
@@ -88,9 +93,8 @@ function App() {
           <p>Logged in as <strong>{user}</strong></p>
         </div>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <div onClick={copyToken} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#e2e8f0', padding: '0.5rem 1rem', borderRadius: '0.5rem', fontSize: '0.8rem' }}>
-            {copied ? <Check size={14} color="green" /> : <Copy size={14} />}
-            {copied ? 'Token Copied!' : 'Copy Extension Token'}
+          <div style={{ color: '#059669', fontSize: '0.8rem', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <Check size={14} /> Extension Synced
           </div>
           <button onClick={handleLogout} className="logout-btn">Logout</button>
         </div>
