@@ -37,6 +37,11 @@ const db = new sqlite3.Database(dbPath, (err) => {
 
 // API Endpoints
 
+// Health Check
+app.get('/', (req, res) => {
+    res.json({ status: 'Online', message: 'Noted Backend is running!' });
+});
+
 // Register/Login (Simple)
 app.post('/auth', (req, res) => {
     const { username } = req.body;
