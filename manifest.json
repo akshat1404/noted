@@ -1,0 +1,29 @@
+{
+  "manifest_version": 3,
+  "name": "Noted",
+  "version": "6.1",
+  "description": "Yellow notes with ultra-fast clean AI summarization via Groq (Text Only)",
+  "permissions": [
+    "storage",
+    "activeTab",
+    "scripting"
+  ],
+  "host_permissions": [
+    "https://api.groq.com/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "web_accessible_resources": []
+}
