@@ -126,11 +126,18 @@
         }, (response) => {
             if (response && response.success) {
                 saveBtn.innerText = "SAVED!";
-                alert(`Note saved successfully! View it on your dashboard: ${DASHBOARD_URL}`);
+                const viewLink = document.createElement('a');
+                viewLink.href = DASHBOARD_URL;
+                viewLink.target = "_blank";
+                viewLink.innerText = "VIEW DASHBOARD";
+                viewLink.style = "margin-left: 10px; color: #854d0e; font-size: 10px; font-weight: bold; text-decoration: underline; cursor: pointer;";
+                footer.insertBefore(viewLink, saveBtn.nextSibling);
+                
                 setTimeout(() => {
                     saveBtn.innerText = originalText;
                     saveBtn.disabled = false;
-                }, 2000);
+                    viewLink.remove();
+                }, 4000);
             } else {
                 alert("Failed to save: " + (response ? response.error : "Unknown error"));
                 saveBtn.innerText = originalText;
