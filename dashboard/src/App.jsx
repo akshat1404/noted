@@ -109,7 +109,7 @@ function App() {
                   <ExternalLink size={12} style={{ marginRight: '4px' }} />
                   {note.domain}
                 </div>
-                <div className="content" dangerouslySetInnerHTML={{ __image: note.content }} />
+                <div className="content" dangerouslySetInnerHTML={{ __html: note.content }} />
                 <div className="time">
                   <Clock size={12} style={{ marginRight: '4px' }} />
                   {new Date(note.timestamp).toLocaleString()}
