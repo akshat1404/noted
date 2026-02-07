@@ -38,7 +38,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
 // API Endpoints
 
 // Register/Login (Simple)
-app.post('/api/auth', (req, res) => {
+app.post('/auth', (req, res) => {
     const { username } = req.body;
     if (!username) return res.status(400).json({ error: 'Username is required' });
 
@@ -58,7 +58,7 @@ app.post('/api/auth', (req, res) => {
 });
 
 // Save Note
-app.post('/api/notes', (req, res) => {
+app.post('/notes', (req, res) => {
     const { token, domain, content } = req.body;
     if (!token || !domain || !content) return res.status(400).json({ error: 'Missing fields' });
 
@@ -74,7 +74,7 @@ app.post('/api/notes', (req, res) => {
 });
 
 // Get Notes
-app.get('/api/notes', (req, res) => {
+app.get('/notes', (req, res) => {
     const token = req.headers['authorization'];
     if (!token) return res.status(401).json({ error: 'No token provided' });
 
