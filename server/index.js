@@ -33,6 +33,11 @@ const db = new sqlite3.Database(dbPath, (err) => {
             timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (userId) REFERENCES users(id)
         )`);
+        db.run(`ALTER TABLE notes ADD COLUMN url TEXT`, (err) => {
+            if (err) {
+                // Column likely already exists, ignore error
+            }
+        });
     }
 });
 
